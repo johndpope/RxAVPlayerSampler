@@ -36,6 +36,10 @@ final class VideoListViewController: UIViewController, Storyboardable {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        Video.manager.setCategorySoloAmbient()
+        Video.manager.startObserve()
+        
         configureUI()
         observe()
     }

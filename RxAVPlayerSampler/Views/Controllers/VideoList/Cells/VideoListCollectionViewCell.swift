@@ -86,9 +86,10 @@ final class VideoListCollectionViewCell: UICollectionViewCell, CellNibable {
     func observeVideoPlayer() {
         guard let videoPlayer = videoPlayer else { return }
         
-        videoPlayer.rx.volume.asObservable()
+        Observable.combineLatest(videoPlayer.rx.playable.asObservable(), videoPlayer.rx.volume.asObservable()) { $0 }
+            .filter { $0.0 == true }
             .skip(1)
-            .map { $0 > 0 ? Video.VolumeState.on : Video.VolumeState.off }
+            .map { $0.1 > 0 ? Video.VolumeState.on : Video.VolumeState.off }
             .subscribe(onNext: { [weak self] volumeState in
                 self?.volumeButton.isSelected = volumeState.isOn
             })

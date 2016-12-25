@@ -142,6 +142,27 @@ private extension VideoPlayer {
 
     }
     
+    func observeAVNotification() {
+        Video.manager.rx.oldDeviceUnavailable.asObservable()
+            .observeOn(videoPlayerScheduler)
+            .subscribe(onNext: {
+                let alert = UIAlertController(title: "oldDeviceUnavailable", message: nil, preferredStyle: .alert)
+                UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil)
+            })
+            .addDisposableTo(disposeBag)
+        
+        Video.manager.rx.interruptionEnded.asObservable()
+            .observeOn(videoPlayerScheduler)
+            .map { $0 ?? AVAudioSessionInterruptionType.ended }
+            .subscribe(onNext: { audioSessionInterruptionType in
+                Logger.error("audioSessionInterruptionType: \(audioSessionInterruptionType)")
+                let alert = UIAlertController(title: "audioSessionInterruptionType", message: String(audioSessionInterruptionType.rawValue), preferredStyle: .alert)
+                UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil)
+            })
+            .addDisposableTo(disposeBag)
+
+    }
+    
 }
 
 extension Reactive where Base: VideoPlayer {
